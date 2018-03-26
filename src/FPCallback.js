@@ -10,7 +10,7 @@ class FPCallback{
         checkExpire.call(this);
     }
 
-    addCallback(key, cb, timeout){
+    addCb(key, cb, timeout){
         if (!this._cbMap.hasOwnProperty(key)){
             this._cbMap[key] = cb;
         } 
@@ -22,22 +22,19 @@ class FPCallback{
         this._exMap[key] = timeout + Date.now();
     }
 
-    removeCallback(key){
-        delayRemoveCallback.call(self, key);
-    }
+    removeCb(key){
+        if (key){
+            delayRemove.call(this, key);
+            return;
+        }
 
-    removeAll(){
         for (let key in this._cbMap){
-            delayCallback.call(this, key, { code:FPConfig.ERROR_CODE.FPNN_EC_CORE_TIMEOUT, ex:'FPNN_EC_CORE_TIMEOUT' });
+            delayExec.call(this, key, { code:FPConfig.ERROR_CODE.FPNN_EC_CORE_TIMEOUT, ex:'FPNN_EC_CORE_TIMEOUT' });
         }
     }
 
-    findCallback(key){
-        return this._cbMap[key];
-    }
-
-    callback(key, data){
-        delayCallback.call(this, key, data);
+    execCb(key, data){
+        delayExec.call(this, key, data);
     }
 }
 
@@ -48,36 +45,40 @@ function checkExpire(){
             if (self._exMap[key] > Date.now()){
                 continue;
             } 
-            delayCallback.call(self, key, { code:FPConfig.ERROR_CODE.FPNN_EC_CORE_TIMEOUT, ex:'FPNN_EC_CORE_TIMEOUT' });
+            delayExec.call(self, key, { code:FPConfig.ERROR_CODE.FPNN_EC_CORE_TIMEOUT, ex:'FPNN_EC_CORE_TIMEOUT' });
         }
     }, FPConfig.CHECK_CBS_INTERVAL);
 }
 
-function delayCallback(key, data){
+function delayExec(key, data){
     let self = this;
     setTimeout(() => {
-        callback.call(self, key, data);
+        cbExec.call(self, key, data);
     }, 0);
 }
 
-function callback(key, data){
-    let cb = this.findCallback(key);
-    if (cb){
-        removeCallback.call(this, key);
-        cb(data);
+function cbExec(key, data){
+    if (this._cbMap.hasOwnProperty(key)){
+        this._cbMap[key](data);
+        cbRemove.call(this, key);
     }
 }
 
-function delayRemoveCallback(key){
+function delayRemove(key){
     let self = this;
     setTimeout(() => {
-        removeCallback.call(self, key);
+        cbRemove.call(self, key);
     }, 0);
 }
 
-function removeCallback(key){
-    if (this._cbMap.hasOwnProperty(key)) delete this._cbMap[key];
-    if (this._exMap.hasOwnProperty(key)) delete this._exMap[key];
+function cbRemove(key){
+    if (this._cbMap.hasOwnProperty(key)){
+        delete this._cbMap[key];
+    }
+
+    if (this._exMap.hasOwnProperty(key)){
+        delete this._exMap[key];
+    } 
 }
 
 module.exports = FPCallback

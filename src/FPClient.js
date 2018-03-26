@@ -79,7 +79,7 @@ class FPClient{
         data.payload = options.payload;
 
         data = this._pkg.buildPkgData(data);
-        if (callback) this._cbs.addCallback(this._pkg.cbKey(data), callback, timeout);
+        if (callback) this._cbs.addCb(this._pkg.cbKey(data), callback, timeout);
 
         let buf = this._pkg.enCode(data);
         this._conn.write(buf);
@@ -136,7 +136,7 @@ function onClose(){
     this._peekData = null;
 
     this._buffer = Buffer.allocUnsafe(FPConfig.READ_BUFFER_LEN);
-    this._cbs.removeAll();
+    this._cbs.removeCb();
 
     this.emit('close');
 }
@@ -157,7 +157,7 @@ function onData(chunk){
         this._peekData = peekHead.call(this, this._buffer);
 
         if (!this._peekData){
-            this.conn.close({ code:FPConfig.ERROR_CODE.FPNN_EC_CORE_CONNECTION_CLOSED, ex:'FPNN_EC_CORE_CONNECTION_CLOSED' });
+            this._conn.close({ code:FPConfig.ERROR_CODE.FPNN_EC_CORE_CONNECTION_CLOSED, ex:'FPNN_EC_CORE_CONNECTION_CLOSED' });
             return;
         }
     }
@@ -179,7 +179,7 @@ function onData(chunk){
 
         if (this._pkg.isAnswer(data)){
             let cbkey = this._pkg.cbKey(data);
-            this._cbs.callback(cbkey, data);
+            this._cbs.execCb(cbkey, data);
         }
 
         if (this._pkg.isQuest(data)){
