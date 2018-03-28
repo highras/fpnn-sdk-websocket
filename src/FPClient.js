@@ -15,22 +15,30 @@ class FPClient{
 
         this._buffer = Buffer.allocUnsafe(16);
         this._autoReconnect = options ? options.autoReconnect : false;
+        this._proxy = options ? options.proxy : null;
+
+        if (this._proxy){
+            this._proxy.targetEndpoint = options.endpoint;
+            options.endpoint = this._proxy.endpoint;
+        }
+
         this._conn = new FPSocket(options);
 
-        this._conn.on('connect', () => {
-            onConnect.call(this);
+        let self = this;
+        this._conn.on('connect', function(){
+            onConnect.call(self);
         });
 
-        this._conn.on('close', () => {
-            onClose.call(this);
+        this._conn.on('close', function(){
+            onClose.call(self);
         });
 
-        this._conn.on('data', (chunk) => {
-            onData.call(this, chunk);
+        this._conn.on('data', function(chunk){
+            onData.call(self, chunk);
         });
 
-        this._conn.on('error', (err) => {
-            this.emit('error', err);
+        this._conn.on('error', function(err){
+            self.emit('error', err);
         });
 
         this._pkg = new FPPackage();
@@ -82,6 +90,11 @@ class FPClient{
         if (callback) this._cbs.addCb(this._pkg.cbKey(data), callback, timeout);
 
         let buf = this._pkg.enCode(data);
+
+        if (this._proxy){
+            buf = this._proxy.buildProxyData(buf);
+        }
+
         this._conn.write(buf);
     }
 
@@ -103,6 +116,11 @@ class FPClient{
 
         data = this._pkg.buildPkgData(data);
         let buf = this._pkg.enCode(data);
+
+        if (this._proxy){
+            buf = this._proxy.buildProxyData(buf);
+        }
+
         this._conn.write(buf);
     }
 
@@ -126,7 +144,7 @@ function onConnect(){
 function onClose(){
     if (this._autoReconnect){
         let self = this;
-        setTimeout(() => {
+        setTimeout(function(){
             self.connect();
         }, FPConfig.SEND_TIMEOUT);
     }
@@ -184,7 +202,7 @@ function onData(chunk){
 
         if (this._pkg.isQuest(data)){
             let self = this;
-            this._psr.service(data, (payload, exception) => {
+            this._psr.service(data, function(payload, exception){
                 sendAnswer.call(self, data.flag, data.seq, payload, exception);
             });
         }
