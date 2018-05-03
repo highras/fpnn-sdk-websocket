@@ -7,7 +7,8 @@ let client = new FPClient({
 });
 
 client.connect();
-client.on('connect', function(){
+client.on('connect', function() {
+
     console.log('connect!');
 
     let options = {
@@ -16,18 +17,22 @@ client.on('connect', function(){
         payload: msgpack.encode({}),
     };
 
-    client.sendQuest(options, function(data){
-        if (data){
+    client.sendQuest(options, function(data) {
+
+        if (data) {
+
             console.log('\n[DATA] sendFile:\n', data);
         }
     }, 10 * 1000);
 });
 
-client.on('error', function(err){
+client.on('error', function(err) {
+
     console.error(err);
 });
 
-client.processor.on('duplex quest', function(payload, cb){
+client.processor.on('duplex quest', function(payload, cb) {
+
     console.log(payload);
     // cb && cb(msgpack.encode({test: 'test push'}), false);
 });
