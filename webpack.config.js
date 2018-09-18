@@ -2,7 +2,7 @@ const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
-    entry: './src/FPClient.js',
+    entry: './src/fpnn/FPClient.js',
     output: {
         filename: 'fpnn.min.js',
         path: path.resolve(__dirname, 'dist'),
