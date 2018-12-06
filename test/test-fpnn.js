@@ -1,7 +1,7 @@
 'use strict'
 
-let client = new FPClient({
-    endpoint: 'ws://35.167.185.139:13013/service/test',
+let client = new fpnn.FPClient({
+    endpoint: 'ws://52.83.245.22:13013/service/test',
     autoReconnect: true,
     connectionTimeout: 10 * 1000
 });

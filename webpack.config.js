@@ -1,14 +1,15 @@
 const path = require('path');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
+//amd
 module.exports = {
-    entry: './src/fpnn/FPClient.js',
+    entry: './src/fpnn.js',
     output: {
         filename: 'fpnn.min.js',
         path: path.resolve(__dirname, 'dist'),
-        library: 'FPClient',
+        library: 'fpnn',
+        libraryTarget: 'umd'
     },
-    devtool: 'source-map',
+    // devtool: 'source-map',
     target: 'web',
     module: {
         rules: [
@@ -18,7 +19,7 @@ module.exports = {
                     path.resolve(__dirname, 'src')
                 ],
                 exclude: [
-                    path.resolve(__dirname, 'lib')
+                    path.resolve(__dirname, 'libs')
                 ],
                 loader: 'babel-loader',
                 options: {
