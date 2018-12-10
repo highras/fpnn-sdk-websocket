@@ -21,7 +21,7 @@ client.on('connect', function() {
 
         if (data) {
 
-            console.log('\n[DATA] sendFile:\n', data);
+            console.log('duplex demo:\n', data);
         }
     }, 10 * 1000);
 });
@@ -33,6 +33,6 @@ client.on('error', function(err) {
 
 client.processor.on('duplex quest', function(payload, cb) {
 
-    console.log(payload);
+    console.log('push demo:', payload);
     // cb && cb(msgpack.encode({test: 'test push'}), false);
 });
