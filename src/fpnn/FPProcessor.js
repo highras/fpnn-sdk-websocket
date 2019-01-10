@@ -16,7 +16,7 @@ class FPProcessor {
 
     destroy() {
 
-        this.removeEvent();
+        // this.removeEvent();
     }
 }
 
