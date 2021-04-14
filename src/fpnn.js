@@ -7,6 +7,7 @@ const FPSocket = require('./fpnn/FPSocket');
 const FPPackage = require('./fpnn/FPPackage');
 const FPCallback = require('./fpnn/FPCallback');
 const FPProcessor = require('./fpnn/FPProcessor');
+const FPError = require('./fpnn/FPError');
 
 const BrowserImpl = require('./fpnn/platform/BrowserImpl');
 const WechatImpl = require('./fpnn/platform/WechatImpl');
@@ -19,6 +20,7 @@ module.exports = {
 	FPPackage,
 	FPCallback,
 	FPProcessor,
+	FPError,
 	BrowserImpl,
 	WechatImpl
 };

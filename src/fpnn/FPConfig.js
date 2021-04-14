@@ -2,7 +2,10 @@
 
 const Buffer = require('../../libs/buffer').Buffer;
 
+const SDK_VERSION = '2.0.0';
+
 const ERROR_CODE = {
+	FPNN_EC_OK: 0,
 	FPNN_EC_PROTO_UNKNOWN_ERROR: 10001,		// 未知错误（协议解析错误）
 	FPNN_EC_PROTO_NOT_SUPPORTED: 10002,		// 不支持的协议
 	FPNN_EC_PROTO_INVALID_PACKAGE: 10003,	// 无效的数据包
@@ -57,6 +60,10 @@ const CRYPTO_ALGORITHM = [
 ];
 
 class FPConfig {
+
+	static get SDK_VERSION() {
+		return SDK_VERSION;
+	}
 
 	static get BUFFER() {
 

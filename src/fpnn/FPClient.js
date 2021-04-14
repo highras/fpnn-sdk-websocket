@@ -6,6 +6,7 @@ const FPSocket = require('./FPSocket');
 const FPPackage = require('./FPPackage');
 const FPCallback = require('./FPCallback');
 const FPProcessor = require('./FPProcessor');
+const FPError = require('./FPError');
 
 class FPClient {
 
@@ -14,13 +15,6 @@ class FPClient {
         FPEvent.assign(this);
 
         this._autoReconnect = options.autoReconnect || false;
-        this._proxy = options.proxy || null;
-
-        if (this._proxy) {
-            
-            this._proxy.targetEndpoint = options.endpoint;
-            options.endpoint = this._proxy.endpoint;
-        }
 
         this._conn = new FPSocket(options);
 
@@ -42,8 +36,7 @@ class FPClient {
         });
 
         this._conn.on('error', function(err) {
-
-            onError.call(self, err);
+            onError.call(self, new FPError(FPConfig.ERROR_CODE.FPNN_EC_CORE_UNKNOWN_ERROR, err));
         });
 
         this._pkg = new FPPackage();
@@ -70,17 +63,17 @@ class FPClient {
     }
 
     connect() {
-
-        if (this.hasConnect) {
-
-            this._conn.close(new Error('has connected!'));
-            return;
+        if (!this.hasConnect) {
+            this._conn.open();
         }
-
-        this._conn.open();
     }
 
     sendQuest(options, callback, timeout) {
+
+        if (!this._conn.isOpen) {
+            callback && callback(new FPError(FPConfig.ERROR_CODE.FPNN_EC_CORE_CONNECTION_CLOSED, new Error('Connection Closed')));
+            return;
+        }
 
         let data = {};
 
@@ -101,11 +94,6 @@ class FPClient {
         }
 
         let buf = this._pkg.enCode(data);
-
-        if (this._proxy) {
-
-            buf = this._proxy.buildProxyData(buf);
-        }
         
         this._conn.write(buf);
     }
@@ -124,11 +112,6 @@ class FPClient {
 
         data = this._pkg.buildPkgData(data);
         let buf = this._pkg.enCode(data);
-
-        if (this._proxy) {
-
-            buf = this._proxy.buildProxyData(buf);
-        }
 
         this._conn.write(buf);
     }
@@ -271,7 +254,7 @@ function readPeekData () {
 
         if (!this._peekData) {
 
-            this.conn.close(new Error('worng package!'));
+            this.conn.close(new FPError(FPConfig.ERROR_CODE.FPNN_EC_PROTO_INVALID_PACKAGE, new Error('Invalid Protocol Package')));
             return;
         }
     }

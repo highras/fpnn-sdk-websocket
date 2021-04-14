@@ -1,6 +1,7 @@
 'use strict'
 
 const FPConfig = require('./FPConfig');
+const FPError = require('./FPError');
 
 class FPCallback {
 
@@ -37,7 +38,7 @@ class FPCallback {
 
         for (let key in this._cbMap) {
 
-            delayExec.call(this, key, new Error('timeout with closed!'));
+            delayExec.call(this, key, new FPError(FPConfig.ERROR_CODE.FPNN_EC_CORE_CONNECTION_CLOSED, new Error('Connection Closed')));
         }
     }
 
@@ -60,7 +61,7 @@ function checkExpire() {
                 continue;
             } 
 
-            delayExec.call(self, key, new Error('timeout with expire'));
+            delayExec.call(self, key, new FPError(FPConfig.ERROR_CODE.FPNN_EC_CORE_TIMEOUT, Error('Timeout')));
         }
     }, FPConfig.CHECK_CBS_INTERVAL);
 }
